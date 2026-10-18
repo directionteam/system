@@ -329,3 +329,39 @@ function endGame(won) {
   } else {
     el.endTitle.textContent = '💥 GRID OVERLOAD';
     el.endTitle.style.color = 'var(--neon-red)';
+  }
+  
+  el.finalScore.textContent = `${Game.solar + Game.battery} MW`;
+  el.finalTime.textContent = `${120 - Game.timeLeft}s`;
+}
+
+/* ==================== الإفلات بالماوس (للتسهيل) ==================== */
+document.addEventListener('mouseup', () => {
+  if (Game.holdingPack) checkDropZone();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!Game.running || Game.fingerActive) return;
+  
+  el.fingerCursor.classList.remove('hidden');
+  el.fingerCursor.classList.add('visible');
+  el.fingerCursor.style.left = e.clientX + 'px';
+  el.fingerCursor.style.top = e.clientY + 'px';
+  Game.fingerX = e.clientX; Game.fingerY = e.clientY;
+  
+  if (Game.holdingPack) {
+    Game.holdingPack.style.left = e.clientX + 'px';
+    Game.holdingPack.style.top = e.clientY + 'px';
+  } else {
+    checkPackHover(e.clientX, e.clientY);
+  }
+});
+
+/* ==================== الأحداث ==================== */
+el.startBtn.addEventListener('click', startGame);
+el.replayBtn.addEventListener('click', () => {
+  el.endScreen.classList.add('hidden');
+  startGame();
+});
+
+console.log('%c⚡ SMART GRID BALANCER LOADED', 'color:#00f3ff; font-size:16px;');
