@@ -1,0 +1,284 @@
+/* =====================================================
+   SMART GRID BALANCER - HMI STYLES
+===================================================== */
+
+:root {
+  --bg-dark: #050a11;
+  --panel-bg: rgba(6, 18, 30, 0.85);
+  --neon-cyan: #00f3ff;
+  --neon-green: #00ff66;
+  --neon-red: #ff0033;
+  --neon-yellow: #ffcc00;
+  --text-main: #e0f7fa;
+  --text-dim: #5a8ca8;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  height: 100vh;
+  user-select: none;
+}
+
+.hidden { display: none !important; }
+
+/* ==================== شاشات النظام ==================== */
+
+.screen {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.9);
+  z-index: 1000;
+}
+
+.terminal-box {
+  background: var(--panel-bg);
+  border: 1px solid var(--neon-cyan);
+  width: 600px; padding: 0;
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+}
+
+.terminal-header {
+  background: rgba(0, 243, 255, 0.1);
+  border-bottom: 1px solid var(--neon-cyan);
+  padding: 10px 15px;
+  font-size: 14px; color: var(--neon-cyan);
+  display: flex; justify-content: space-between;
+}
+
+.terminal-body { padding: 30px; text-align: left; }
+.terminal-body p { font-size: 14px; margin-bottom: 8px; color: var(--neon-cyan); }
+
+.btn-tech {
+  background: transparent; border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan); padding: 12px 30px;
+  font-family: inherit; font-size: 16px; cursor: pointer;
+  transition: all 0.2s; margin-top: 20px;
+}
+
+.btn-tech:hover { background: var(--neon-cyan); color: var(--bg-dark); }
+
+.text-warning { color: var(--neon-red) !important; }
+
+/* ==================== الشريط العلوي (HUD) ==================== */
+
+.hud-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-around;
+  padding: 15px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+  z-index: 100;
+}
+
+.hud-box { display: flex; flex-direction: column; align-items: center; }
+.hud-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+.hud-val { font-size: 22px; font-weight: bold; color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,243,255,0.5); }
+
+/* ==================== خريطة الشبكة ==================== */
+
+.grid-map {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
+  background-image: 
+    linear-gradient(rgba(0,243,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,243,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.cables {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+.power-cable {
+  fill: none;
+  stroke: rgba(0, 243, 255, 0.1);
+  stroke-width: 4;
+  transition: all 0.5s;
+}
+
+.power-cable.active {
+  stroke: var(--neon-green);
+  stroke-dasharray: 20 10;
+  animation: dashFlow 1s linear infinite;
+  filter: drop-shadow(0 0 8px var(--neon-green));
+}
+
+@keyframes dashFlow {
+  to { stroke-dashoffset: -30; }
+}
+
+/* ==================== مصدر الطاقة المركزي ==================== */
+
+.central-node {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px; height: 150px;
+  border: 2px dashed var(--neon-cyan);
+  border-radius: 10px;
+  background: rgba(0, 243, 255, 0.05);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 20;
+}
+
+.node-title {
+  font-size: 14px; color: var(--neon-cyan);
+  letter-spacing: 2px; margin-bottom: 10px;
+}
+
+.power-packs {
+  display: flex; gap: 8px;
+}
+
+.power-pack {
+  width: 45px; height: 45px;
+  background: rgba(0, 255, 102, 0.15);
+  border: 1px solid var(--neon-green);
+  color: var(--neon-green);
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: bold;
+  cursor: grab;
+  box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+  transition: transform 0.2s;
+}
+
+.power-pack small { font-size: 8px; display: block; text-align: center; margin-top: -4px; }
+
+.power-pack:hover { transform: scale(1.1); background: rgba(0,255,102,0.3); }
+.power-pack.dragging { opacity: 0.5; cursor: grabbing; }
+
+/* ==================== المناطق ==================== */
+
+.zone {
+  position: absolute;
+  width: 180px; height: 100px;
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  background: rgba(6, 18, 30, 0.8);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 20;
+  transition: all 0.3s;
+}
+
+#zone-hosp { top: 15%; left: 15%; }
+#zone-ind { top: 15%; right: 15%; }
+#zone-res { bottom: 15%; left: 15%; }
+#zone-wat { bottom: 15%; right: 15%; }
+
+.zone-title { font-size: 14px; color: var(--neon-cyan); letter-spacing: 1px; }
+.zone-req { font-size: 11px; color: var(--text-dim); margin: 4px 0; }
+.zone-status { font-size: 12px; color: var(--neon-red); font-weight: bold; }
+.zone-load { font-size: 18px; color: var(--text-main); font-weight: bold; margin-top: 5px; }
+
+.zone.active {
+  border-color: var(--neon-green);
+  background: rgba(0, 255, 102, 0.05);
+  box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+}
+.zone.active .zone-status { color: var(--neon-green); }
+
+.zone.overload {
+  border-color: var(--neon-red);
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* ==================== HUD السفلي ==================== */
+
+.hud-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 15px 30px;
+  display: flex; justify-content: space-between;
+  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+  z-index: 100;
+}
+
+.status-ok { color: var(--neon-green); font-size: 14px; letter-spacing: 2px; }
+.status-error { color: var(--neon-red); font-size: 14px; letter-spacing: 2px; animation: blink 1s infinite; }
+.hint-bar { color: var(--neon-cyan); font-size: 12px; border: 1px solid var(--neon-cyan); padding: 6px 12px; }
+
+/* ==================== مؤشر الإصبع ==================== */
+
+#fingerCursor {
+  position: fixed; width: 40px; height: 40px;
+  transform: translate(-50%, -50%);
+  z-index: 2000; pointer-events: none;
+  opacity: 0; transition: opacity 0.2s;
+}
+
+#fingerCursor.visible { opacity: 1; }
+
+.cursor-crosshair {
+  position: absolute; inset: 0;
+  border: 1px solid var(--neon-cyan);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.cursor-crosshair::before, .cursor-crosshair::after {
+  content: ''; position: absolute; background: var(--neon-cyan);
+}
+.cursor-crosshair::before { top: 50%; left: -10px; right: -10px; height: 1px; }
+.cursor-crosshair::after { left: 50%; top: -10px; bottom: -10px; width: 1px; }
+
+.cursor-dot {
+  position: absolute; top: 50%; left: 50%;
+  width: 4px; height: 4px; background: var(--neon-cyan);
+  border-radius: 50%; transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+#fingerCursor.holding .cursor-dot { background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+
+/* ==================== الكاميرا ==================== */
+
+#camPreview {
+  position: absolute; bottom: 60px; left: 30px;
+  width: 180px; height: 135px;
+  border: 1px solid var(--neon-cyan);
+  z-index: 100; background: #000;
+}
+
+#camPreview video, #camPreview canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; transform: scaleX(-1);
+  opacity: 0.7; filter: contrast(1.2) grayscale(0.5);
+}
+
+.cam-tag {
+  position: absolute; top: 5px; left: 5px;
+  font-size: 9px; color: var(--neon-green);
+  background: rgba(0,0,0,0.7); padding: 2px 5px;
+}
+
+/* ==================== Toast ==================== */
+
+.toast {
+  position: absolute; top: 80px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(0, 255, 102, 0.1);
+  border: 1px solid var(--neon-green);
+  color: var(--neon-green);
+  padding: 10px 25px; font-size: 14px;
+  z-index: 3000; opacity: 0; pointer-events: none;
+  transition: all 0.3s; text-transform: uppercase;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: rgba(255,0,51,0.1); border-color: var(--neon-red); color: var(--neon-red); }
+
+@keyframes blink { 50% { opacity: 0; } }
+.blink { animation: blink 1s step-end infinite; }
