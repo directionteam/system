@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Grid Balancer | Control Room HMI</title>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- شاشة البداية -->
+  <div id="startScreen" class="screen">
+    <div class="terminal-box">
+      <div class="terminal-header">
+        <span>SMART GRID // CONTROL ROOM</span>
+        <span class="blink">_</span>
+      </div>
+      <div class="terminal-body">
+        <p>> INITIALIZING POWER DISTRIBUTION SYSTEM...</p>
+        <p>> SOLAR INPUT: 60 MW</p>
+        <p>> BATTERY RESERVE: 40 MW</p>
+        <p class="text-warning">> WARNING: GRID LOAD EXCEEDING CAPACITY</p>
+        <br>
+        <p>YOUR TASK: DISTRIBUTE POWER TO THE CITY WITHOUT OVERLOADING THE GRID.</p>
+        <br>
+        <button id="startBtn" class="btn-tech">START SHIFT</button>
+        <p class="hint-small">Camera required for finger tracking</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- شاشة النتيجة -->
+  <div id="endScreen" class="screen hidden">
+    <div class="terminal-box">
+      <div class="terminal-header">SYSTEM OVERLOAD // SHIFT REPORT</div>
+      <div class="terminal-body">
+        <h1 id="endTitle" class="text-warning">GRID BLACKOUT</h1>
+        <div class="report-grid">
+          <div class="report-item">
+            <span class="label">POWER DELIVERED</span>
+            <span class="value" id="finalScore">0 MW</span>
+          </div>
+          <div class="report-item">
+            <span class="label">CITY SURVIVAL TIME</span>
+            <span class="value" id="finalTime">0s</span>
+          </div>
+        </div>
+        <button id="replayBtn" class="btn-tech">REBOOT SYSTEM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- واجهة اللعبة الرئيسية -->
+  <div id="gameUI" class="hidden">
+    
+    <!-- الشريط العلوي (البيانات) -->
+    <div class="hud-top">
+      <div class="hud-box">
+        <span class="hud-label">SOLAR INPUT</span>
+        <span class="hud-val" id="solarVal">60 MW</span>
+      </div>
+      <div class="hud-box">
+        <span class="hud-label">BATTERY RESERVE</span>
+        <span class="hud-val" id="batteryVal">40 MW</span>
+      </div>
+      <div class="hud-box">
+        <span class="hud-label">GRID FREQUENCY</span>
+        <span class="hud-val" id="freqVal" style="color:var(--neon-green)">50.0 Hz</span>
+      </div>
+      <div class="hud-box">
+        <span class="hud-label">CITY DEMAND</span>
+        <span class="hud-val text-warning" id="demandVal">100 MW</span>
+      </div>
+    </div>
+
+    <!-- الشاشة المركزية (خريطة المدينة) -->
+    <div class="grid-map">
+      <!-- كابلات الطاقة (تضيء عند توزيع الطاقة) -->
+      <svg class="cables" viewBox="0 0 1200 800">
+        <path id="cable-hosp" d="M 600 400 L 250 200" class="power-cable" />
+        <path id="cable-ind" d="M 600 400 L 950 200" class="power-cable" />
+        <path id="cable-res" d="M 600 400 L 250 600" class="power-cable" />
+        <path id="cable-wat" d="M 600 400 L 950 600" class="power-cable" />
+      </svg>
+
+      <!-- مصدر الطاقة المركزي -->
+      <div class="central-node">
+        <div class="node-title">GRID CORE</div>
+        <div class="power-packs" id="powerPacks">
+          <!-- حزم الطاقة تسحب من هنا -->
+          <div class="power-pack" data-value="20">20<small>MW</small></div>
+          <div class="power-pack" data-value="20">20<small>MW</small></div>
+          <div class="power-pack" data-value="20">20<small>MW</small></div>
+          <div class="power-pack" data-value="20">20<small>MW</small></div>
+          <div class="power-pack" data-value="20">20<small>MW</small></div>
+        </div>
+      </div>
+
+      <!-- المناطق الأربع -->
+      <!-- 1. Hospital -->
+      <div class="zone" id="zone-hosp" data-name="HOSPITAL" data-required="40">
+        <div class="zone-title">HOSPITAL</div>
+        <div class="zone-req">REQ: 40 MW</div>
+        <div class="zone-status">OFFLINE</div>
+        <div class="zone-load">0 MW</div>
+      </div>
+
+      <!-- 2. Factory -->
+      <div class="zone" id="zone-ind" data-name="FACTORY" data-required="30">
+        <div class="zone-title">FACTORY</div>
+        <div class="zone-req">REQ: 30 MW</div>
+        <div class="zone-status">OFFLINE</div>
+        <div class="zone-load">0 MW</div>
+      </div>
+
+      <!-- 3. Residential -->
+      <div class="zone" id="zone-res" data-name="RESIDENTIAL" data-required="20">
+        <div class="zone-title">RESIDENTIAL</div>
+        <div class="zone-req">REQ: 20 MW</div>
+        <div class="zone-status">OFFLINE</div>
+        <div class="zone-load">0 MW</div>
+      </div>
+
+      <!-- 4. Water Plant -->
+      <div class="zone" id="zone-wat" data-name="WATER PLANT" data-required="10">
+        <div class="zone-title">WATER PLANT</div>
+        <div class="zone-req">REQ: 10 MW</div>
+        <div class="zone-status">OFFLINE</div>
+        <div class="zone-load">0 MW</div>
+      </div>
+
+    </div>
+
+    <!-- شريط التحذير السفلي -->
+    <div class="hud-bottom">
+      <div id="systemStatus" class="status-ok">GRID STABLE</div>
+      <div class="hint-bar">DRAG POWER PACKS TO ZONES USING INDEX FINGER</div>
+    </div>
+
+    <!-- مؤشر الإصبع -->
+    <div id="fingerCursor" class="hidden">
+      <div class="cursor-crosshair"></div>
+      <div class="cursor-dot"></div>
+    </div>
+
+    <!-- كاميرا مصغرة -->
+    <div id="camPreview">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="camCanvas"></canvas>
+      <div class="cam-tag">OPTICAL</div>
+    </div>
+
+  </div>
+
+  <div id="toast" class="toast"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
